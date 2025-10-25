@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ders Asistanı</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f7f7f7; }
+    h1 { color: #0070f3; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: white; }
+    input, button { padding: 10px; width: 80%; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Yapay Zeka Destekli Ders Asistanı</h1>
+  <div id="chat"></div>
+  <input id="userInput" placeholder="Soru sor...">
+  <button onclick="sendMessage()">Gönder</button>
+
+  <script>
+    async function sendMessage() {
+      const question = document.getElementById('userInput').value;
+      const chat = document.getElementById('chat');
+      chat.innerHTML += `<p><b>Sen:</b> ${question}</p>`;
+      
+      const response = await fetch('https://senin-backend-adresin.vercel.app/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: question })
+      });
+      const data = await response.json();
+      chat.innerHTML += `<p><b>Asistan:</b> ${data.answer}</p>`;
+      document.getElementById('userInput').value = '';
+    }
+  </script>
+</body>
+</html>
+
 
