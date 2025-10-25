@@ -2,37 +2,126 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Ders Asistanı</title>
+  <title>Ders Asistanı 🤖</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f7f7f7; }
-    h1 { color: #0070f3; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: white; }
-    input, button { padding: 10px; width: 80%; margin-top: 10px; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      background: #0070f3;
+      color: white;
+      padding: 15px;
+      width: 100%;
+      text-align: center;
+    }
+    #chat-box {
+      width: 90%;
+      max-width: 700px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      height: 400px;
+    }
+    .msg {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .user {
+      background: #e6f3ff;
+      text-align: right;
+    }
+    .bot {
+      background: #f0f0f0;
+      text-align: left;
+    }
+    #input-area {
+      width: 90%;
+      max-width: 700px;
+      display: flex;
+      margin: 15px 0;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #0070f3;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005ad1;
+    }
   </style>
 </head>
 <body>
   <h1>🧠 Yapay Zeka Destekli Ders Asistanı</h1>
-  <div id="chat"></div>
-  <input id="userInput" placeholder="Soru sor...">
-  <button onclick="sendMessage()">Gönder</button>
+
+  <div id="chat-box"></div>
+
+  <div id="input-area">
+    <input id="userInput" type="text" placeholder="Bir soru yaz... (örn: 'Newton yasaları nedir?')">
+    <button onclick="sendMessage()">Gönder</button>
+  </div>
 
   <script>
-    async function sendMessage() {
-      const question = document.getElementById('userInput').value;
-      const chat = document.getElementById('chat');
-      chat.innerHTML += `<p><b>Sen:</b> ${question}</p>`;
-      
-      const response = await fetch('https://senin-backend-adresin.vercel.app/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: question })
-      });
-      const data = await response.json();
-      chat.innerHTML += `<p><b>Asistan:</b> ${data.answer}</p>`;
-      document.getElementById('userInput').value = '';
+    const API_URL = "https://dersasistani.onrender.com/api/chat"; // 🔗 Backend adresini buraya yaz
+
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("userInput");
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("msg", sender);
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    async function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage(message, "user");
+      input.value = "";
+
+      addMessage("Yapay zeka düşünüyor...", "bot");
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+
+        chatBox.lastChild.textContent = data.answer || "Bir hata oluştu.";
+      } catch (error) {
+        chatBox.lastChild.textContent = "Sunucuya bağlanılamadı ❌";
+      }
+    }
+
+    // Enter tuşu ile gönder
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
   </script>
 </body>
 </html>
-
-
